@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css';
 import Card from './components/Card';
 import Navbar from './components/Navbar';
@@ -19,16 +19,43 @@ const photos = [
 function App() {
 
   const [isCollaspe, setIsCollaspe] = useState(false);
-  const [input, setInput] = useState();
-  const [items, setItems] = useState(photos)
+  const [inputs, setInput] = useState({ title: null, file: null, path: null });
+  const [items, setItems] = useState(photos);
+  const [count, setCount] = useState('');
 
+
+  // input box onchange handler
   const handleOnChange = (e) => {
-    setInput(e.target.value)
+    if (e.target.name === 'file') {
+      setInput({
+        ...inputs,
+        file: e.target.files[0],
+        path: URL.createObjectURL(e.target.files[0])
+      })
+    }
+    else {
+      setInput({
+        ...inputs,
+        title: e.target.value
+      })
+    }
   }
+
+
+  // onsubmit handler
   const handleOnSubmit = (e) => {
     e.preventDefault()
-    setItems([input, ...items])
+    setItems([inputs.path, ...items])
+    setInput({ title: null, file: null, path: null });
+    setIsCollaspe(false)
   }
+
+  useEffect(() => {
+    setCount(`Total Image${items.length > 1 ? 's' : ''} :  ${items.length}`)
+  }, [items])
+
+
+
 
 
   const toogle = () => setIsCollaspe(!isCollaspe)
@@ -39,14 +66,16 @@ function App() {
       {/* navbar */}
       <Navbar></Navbar>
 
+      {/* title bar */}
       <div className="App">
-        {/* title */}
-        <h1 className='bg-warning py-4 display-6 fs-2'>Stock Photo Gallery </h1>
-        <button onClick={toogle} className='btn btn-success '>{isCollaspe ? "Close" : "+Add Photo"}</button>
+        <h1 className='bg-warning py-4 display-6 fs-2'>Stock Photo Gallery <br />
+          <span className='fs-6'>{count}</span></h1>
+        <button onClick={toogle} className='btn btn-success mt-3 '>{isCollaspe ? "Close" : "+Add Photo"}</button>
 
+        {/* //image upload form */}
         <div className='my-5'>
-
           <UploadForm
+            inputs={inputs}
             isCollaspe={isCollaspe}
             onChange={handleOnChange}
             onSubmit={handleOnSubmit}
