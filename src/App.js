@@ -1,95 +1,96 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useReducer, useMemo } from 'react';
 import './App.css';
 import Card from './components/Card';
-import Navbar from './components/Navbar';
-import UploadForm from './components/uploadform';
+import Layout from './components/Layout';
 
 
 
 
-const photos = [
-  'https://picsum.photos/id/1001/200/200',
-  'https://picsum.photos/id/1002/200/200',
-  'https://picsum.photos/id/1003/200/200',
-  'https://picsum.photos/id/1004/200/200',
-  'https://picsum.photos/id/1005/200/200',
-  'https://picsum.photos/id/1006/200/200'
-]
+
+
+const photos = []
+
+// initial state of useReducer
+const initialState = {
+  items: photos,
+  count: photos.length,
+  inputs: { title: null, file: null, path: null },
+  isCollapsed: false
+}
+
+const handleOnChange = (state, e) => {
+  if (e.target.name === 'file') {
+    return { ...state.inputs, file: e.target.files[0], path: URL.createObjectURL(e.target.files[0]) }
+  } else {
+    return { ...state.inputs, title: e.target.value }
+  }
+
+}
+
+
+// reducer function of useReducer
+function reducer(state, action) {
+  switch (action.type) {
+    case 'setItem':
+      return {
+        ...state,
+        items: [state.inputs, ...state.items],
+        count: state.items.length + 1,
+        inputs: initialState.inputs
+      }
+    case "setInputs":
+      return {
+        ...state,
+        inputs: handleOnChange(state, action.payload.value)
+      }
+    case 'collapse':
+      return {
+        ...state,
+        isCollapsed: action.payload.bool
+      }
+    default: return state
+  }
+}
+
+
+
 
 function App() {
+  const [state, dispatch] = useReducer(reducer, initialState)
+  const count = useMemo(() => {
+    return `Total Image${state.items.length > 1 ? 's' : ''} :  ${state.items.length}`
+  }, [state.items])
 
-  const [isCollaspe, setIsCollaspe] = useState(false);
-  const [inputs, setInput] = useState({ title: null, file: null, path: null });
-  const [items, setItems] = useState(photos);
-  const [count, setCount] = useState('');
-
-
-  // input box onchange handler
-  const handleOnChange = (e) => {
-    if (e.target.name === 'file') {
-      setInput({
-        ...inputs,
-        file: e.target.files[0],
-        path: URL.createObjectURL(e.target.files[0])
-      })
-    }
-    else {
-      setInput({
-        ...inputs,
-        title: e.target.value
-      })
-    }
-  }
+  const toggle = (bool) => dispatch({ type: "collapse", payload: { bool } })
+  const handleOnChange = (e) => dispatch({ type: 'setInputs', payload: { value: e } })
 
 
-  // onsubmit handler
+  //upload from submit handler
   const handleOnSubmit = (e) => {
     e.preventDefault()
-    setItems([inputs.path, ...items])
-    setInput({ title: null, file: null, path: null });
-    setIsCollaspe(false)
+    dispatch({ type: 'setItem' })
+
+    toggle(!state.isCollapsed)
+
   }
 
-  useEffect(() => {
-    setCount(`Total Image${items.length > 1 ? 's' : ''} :  ${items.length}`)
-  }, [items])
 
-
-
-
-
-  const toogle = () => setIsCollaspe(!isCollaspe)
-
-
+  // main app componennt
   return (
-    <>
-      {/* navbar */}
-      <Navbar></Navbar>
-
-      {/* title bar */}
-      <div className="App">
-        <h1 className='bg-warning py-4 display-6 fs-2'>Stock Photo Gallery <br />
-          <span className='fs-6'>{count}</span></h1>
-        <button onClick={toogle} className='btn btn-success mt-3 '>{isCollaspe ? "Close" : "+Add Photo"}</button>
-
-        {/* //image upload form */}
-        <div className='my-5'>
-          <UploadForm
-            inputs={inputs}
-            isCollaspe={isCollaspe}
-            onChange={handleOnChange}
-            onSubmit={handleOnSubmit}
-          />
-        </div>
-
-        {/* gallery home image cards */}
-        <div className='row m-5 d-flex justify-content-center align-items-center'>
-          {
-            items.map((photo, index) => <Card key={index} src={photo} />)
-          }
-        </div>
+    <Layout
+      state={state}
+      onSubmit={handleOnSubmit}
+      onChange={handleOnChange}
+      toggle={toggle}
+      count={count}
+    >
+      {/* gallery home image cards */}
+      <div className='row m-5 d-flex justify-content-center align-items-center'>
+        {
+          state.items.map((items, index) => <Card key={index} {...items} />)
+        }
       </div>
-    </>
+    </Layout>
   );
 }
 

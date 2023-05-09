@@ -6,7 +6,7 @@ import Preview from "./Preview";
 
 
 
-const UploadForm = ({ inputs, isCollaspe, onChange, onSubmit }) => {
+const UploadForm = ({ inputs, isVisible, onChange, onSubmit }) => {
 
 
 
@@ -18,7 +18,7 @@ const UploadForm = ({ inputs, isCollaspe, onChange, onSubmit }) => {
 
 
   return (
-    isCollaspe && <>
+    isVisible && <>
       <p className="h4 text-center mb-3 text-center">Upload Stock Image</p>
       <div className="mb-5 d-flex align-items-center justify-content-center">
         <Preview {...inputs} />
