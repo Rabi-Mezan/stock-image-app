@@ -1,28 +1,36 @@
-import { useMemo } from "react";
+import { useContext, useMemo } from "react";
 import Preview from "./Preview";
+import { Context } from "../context";
 
 
+const UploadForm = () => {
+  const { state, dispatch } = useContext(Context)
+
+  // action dispatcher for type colapse and setInputs
+  const handleOnChange = (e) => dispatch({ type: 'setInputs', payload: { value: e } })
 
 
+  //upload from submit handler
+  const handleOnSubmit = (e) => {
+    e.preventDefault()
+    dispatch({ type: 'setItem' })
+    dispatch({ type: "collapse", payload: { bool: false } })
 
-
-const UploadForm = ({ inputs, isVisible, onChange, onSubmit }) => {
-
-
+  }
 
   //Object.values() method to get an array of all the values in the inputs object, and then uses the some() method to check if any of those values are falsy.
   //If any value in the inputs object is falsy, then the some() method will return true, and the !! operator will coerce the return value to a boolean true.
   const isDisabled = useMemo(() => {
-    return !!Object.values(inputs).some(input => !input)
-  }, [inputs])
+    return !!Object.values(state.inputs).some(input => !input)
+  }, [state.inputs])
 
 
   return (
-    isVisible && <>
+    state.isCollapsed && <>
       <p className="h4 text-center mb-3 text-center">Upload Stock Image</p>
       <div className="mb-5 d-flex align-items-center justify-content-center">
-        <Preview {...inputs} />
-        <form className="mb-2" style={{ textAlign: "left" }} onSubmit={onSubmit}>
+        <Preview {...state.inputs} />
+        <form className="mb-2" style={{ textAlign: "left" }} onSubmit={handleOnSubmit}>
           <div className="mb-3">
             <input
               type="text"
@@ -30,11 +38,11 @@ const UploadForm = ({ inputs, isVisible, onChange, onSubmit }) => {
               name="title"
               placeholder="title"
               aria-describedby="text"
-              onChange={onChange}
+              onChange={handleOnChange}
             />
           </div>
           <div className="mb-3">
-            <input type="file" className="form-control" name="file" onChange={onChange} />
+            <input type="file" className="form-control" name="file" onChange={handleOnChange} />
           </div>
           <button
             type="submit"
