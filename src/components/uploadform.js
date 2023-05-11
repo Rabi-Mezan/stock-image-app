@@ -6,7 +6,7 @@ import Storage from "../handlers/storage";
 
 
 const { writeDoc } = Firestore
-const { uploadFile } = Storage;
+const { uploadFile, downloadFile } = Storage;
 
 
 const UploadForm = () => {
@@ -21,12 +21,15 @@ const UploadForm = () => {
   //upload from submit handler
   const handleOnSubmit = (e) => {
     e.preventDefault()
-    uploadFile(state.inputs).then(media => {
-      debugger
-      writeDoc(inputs, "stocks").then(console.log('data passed'));
-      dispatch({ type: 'setItem' })
-      dispatch({ type: "collapse", payload: { bool: false } })
-    })
+    uploadFile(state.inputs)
+      .then(downloadFile)
+      .then(url => {
+        writeDoc({ ...inputs, path: url }, "stocks").then(() => {
+          dispatch({ type: 'setItem' })
+          dispatch({ type: "collapse", payload: { bool: false } })
+        });
+
+      })
   }
 
   //Object.values() method to get an array of all the values in the inputs object, and then uses the some() method to check if any of those values are falsy.
