@@ -2,8 +2,11 @@ import { useContext, useMemo } from "react";
 import Preview from "./Preview";
 import { Context } from "../context";
 import Firestore from "../handlers/firestore";
+import Storage from "../handlers/storage";
+
 
 const { writeDoc } = Firestore
+const { uploadFile } = Storage;
 
 
 const UploadForm = () => {
@@ -18,10 +21,12 @@ const UploadForm = () => {
   //upload from submit handler
   const handleOnSubmit = (e) => {
     e.preventDefault()
-    writeDoc(inputs, "stocks").then(console.log('data passed'));
-    dispatch({ type: 'setItem' })
-    dispatch({ type: "collapse", payload: { bool: false } })
-
+    uploadFile(state.inputs).then(media => {
+      debugger
+      writeDoc(inputs, "stocks").then(console.log('data passed'));
+      dispatch({ type: 'setItem' })
+      dispatch({ type: "collapse", payload: { bool: false } })
+    })
   }
 
   //Object.values() method to get an array of all the values in the inputs object, and then uses the some() method to check if any of those values are falsy.
