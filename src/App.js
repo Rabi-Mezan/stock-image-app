@@ -15,8 +15,9 @@ const { readDocs } = Firestore;
 function App() {
   const { state, read } = useContext(Context)
   const count = useMemo(() => {
-    return `Total Image${state.items.length > 1 ? 's' : ''} :  ${state.items.length}`
+    return `Total image${state.items.length > 1 ? 's' : ''} ${state.items.length} `
   }, [state.items])
+
 
   useEffect(() => {
     read()
@@ -24,8 +25,9 @@ function App() {
 
 
   return (
-    <Layout>
-      <div className='row m-5 d-flex justify-content-center align-items-center'>
+    <Layout count={count}>
+
+      <div className='row row-cols-1 row-cols-md-3 border-0 g-4 m-5'>
         {
           state.items.map((items, index) => <Card key={index} {...items} />)
         }
