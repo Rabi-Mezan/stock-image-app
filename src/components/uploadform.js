@@ -1,10 +1,15 @@
 import { useContext, useMemo } from "react";
 import Preview from "./Preview";
 import { Context } from "../context";
+import Firestore from "../handlers/firestore";
+
+const { writeDoc } = Firestore
 
 
 const UploadForm = () => {
   const { state, dispatch } = useContext(Context)
+  const { isCollapsed: isVisible, inputs } = state
+
 
   // action dispatcher for type colapse and setInputs
   const handleOnChange = (e) => dispatch({ type: 'setInputs', payload: { value: e } })
@@ -13,6 +18,7 @@ const UploadForm = () => {
   //upload from submit handler
   const handleOnSubmit = (e) => {
     e.preventDefault()
+    writeDoc(inputs, "stocks").then(console.log('data passed'));
     dispatch({ type: 'setItem' })
     dispatch({ type: "collapse", payload: { bool: false } })
 
